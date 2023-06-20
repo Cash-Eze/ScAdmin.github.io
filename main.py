@@ -9,7 +9,7 @@ import json
 # MY db connection
 local_server= True
 app = Flask(__name__)
-app.secret_key='kusumachandashwini'
+app.secret_key='youwillneverwalkalone'
 
 
 # this is for getting unique user access
@@ -23,7 +23,7 @@ def load_user(user_id):
 
 
 # app.config['SQLALCHEMY_DATABASE_URL']='mysql://username:password@localhost/databas_table_name'
-app.config['SQLALCHEMY_DATABASE_URI']='mysql://root:@localhost/students'
+app.config['SQLALCHEMY_DATABASE_URI']='mysql://root:@localhost/studentdbms'
 db=SQLAlchemy(app)
 
 # here we will create db models that is tables
@@ -71,8 +71,8 @@ class Student(db.Model):
     
 
 @app.route('/')
-def index(): 
-    return render_template('index.html')
+def home(): 
+    return render_template('home.html')
 
 @app.route('/studentdetails')
 def studentdetails():
