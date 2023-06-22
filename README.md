@@ -55,7 +55,7 @@ Tool/Library
  <ol>phpmyAdmin</ol> 
     
 </ul>
-
+<h3><b>Lincence</b></h3>
 https://github.com/bdbaraban/ideadog#license-lock
 
 <p>This project is licensed under the MIT License - see the LICENSE file for details.</p>
