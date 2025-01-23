@@ -1,5 +1,5 @@
 from flask import Flask,render_template,request,session,redirect,url_for,flash
-from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash,check_password_hash
 from flask_login import login_user,logout_user,login_manager,LoginManager
@@ -7,9 +7,26 @@ from flask_login import login_required,current_user
 import json
 
 # MY db connection
-local_server= True
+#local_server= True
 app = Flask(__name__)
-app.secret_key='youwillneverwalkalone'
+#app.secret_key='youwillneverwalkalone'
+
+user = "root"
+password = "password"
+host = "127.0.0.1"
+port = 3306
+database = "Scadmindb"
+def connection():
+    return create_engine()
+
+engine = create_engine("mysql +pymysql://{0}:{1}@{2}:{3}/{4}".format(user,password,host,port,database))
+
+if __name__ == "__main__":
+    try:
+        engine = connection()
+        print("connection to {host} is succesfull".format(host))
+    except Exception as ex:
+        print("Connection could not be made due to the following error: \n", ex)
 
 
 # this is for getting unique user access
@@ -22,8 +39,8 @@ def load_user(user_id):
 
 
 
-# app.config['SQLALCHEMY_DATABASE_URL']='mysql://username:password@localhost/databas_table_name'
-app.config['SQLALCHEMY_DATABASE_URI']='mysql://root:@localhost/studentdbms'
+#app.config['SQLALCHEMY_DATABASE_URL']='mysql://username:password@localhost/database_table_name'
+#app.config['SQLALCHEMY_DATABASE_URI']='mysql://root:@localhost/studentdbms'
 db=SQLAlchemy(app)
 
 # here we will create db models that is tables
