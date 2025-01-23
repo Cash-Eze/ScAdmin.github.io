@@ -1,5 +1,6 @@
 from flask import Flask,render_template,request,session,redirect,url_for,flash
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine,text
+from sqlalchemy.ext.declarative import declarative_base
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash,check_password_hash
 from flask_login import login_user,logout_user,login_manager,LoginManager
@@ -15,11 +16,11 @@ user = "root"
 password = "password"
 host = "127.0.0.1"
 port = 3306
-database = "Scadmindb"
+database = "students"
 def connection():
     return create_engine()
 
-engine = create_engine("mysql +pymysql://{0}:{1}@{2}:{3}/{4}".format(user,password,host,port,database))
+engine = create_engine('mysql+pymysql://{0}:{1}@{2}:{3}/{4}'.format(user,password,host,port,database))
 
 if __name__ == "__main__":
     try:
@@ -41,31 +42,39 @@ def load_user(user_id):
 
 #app.config['SQLALCHEMY_DATABASE_URL']='mysql://username:password@localhost/database_table_name'
 #app.config['SQLALCHEMY_DATABASE_URI']='mysql://root:@localhost/studentdbms'
-db=SQLAlchemy(app)
+#db=SQLAlchemy(app)
+with engine.connect() as con:
+    with open("students.sql") as file:
+        query = text(file.read())
+        con.execute(query)
+db = engine.connect()
+
+class Base(declarative_base):
+    pass
 
 # here we will create db models that is tables
-class Test(db.Model):
+class Test(Base):
     id=db.Column(db.Integer,primary_key=True)
     name=db.Column(db.String(100))
     email=db.Column(db.String(100))
 
-class Department(db.Model):
+class Department(Base):
     cid=db.Column(db.Integer,primary_key=True)
     branch=db.Column(db.String(100))
 
-class Attendence(db.Model):
+class Attendence(Base):
     aid=db.Column(db.Integer,primary_key=True)
     rollno=db.Column(db.String(100))
     attendance=db.Column(db.Integer())
 
-class Trig(db.Model):
+class Trig(Base):
     tid=db.Column(db.Integer,primary_key=True)
     rollno=db.Column(db.String(100))
     action=db.Column(db.String(100))
     timestamp=db.Column(db.String(100))
 
 
-class User(UserMixin,db.Model):
+class User(UserMixin,Base):
     id=db.Column(db.Integer,primary_key=True)
     username=db.Column(db.String(50))
     email=db.Column(db.String(50),unique=True)
@@ -75,7 +84,7 @@ class User(UserMixin,db.Model):
 
 
 
-class Student(db.Model):
+class Student(Base):
     id=db.Column(db.Integer,primary_key=True)
     rollno=db.Column(db.String(50))
     sname=db.Column(db.String(50))
@@ -107,7 +116,7 @@ def triggers():
 def department():
     if request.method=="POST":
         dept=request.form.get('dept')
-        query=Department.query.filter_by(branch=dept).first()
+        #query=Department.query.filter_by(branch=dept).first()
         if query:
             flash("Department Already Exist","warning")
             return redirect('/department')
@@ -149,7 +158,7 @@ def delete(id):
     post=Student.query.filter_by(id=id).first()
     db.session.delete(post)
     db.session.commit()
-    # db.engine.execute(f"DELETE FROM `student` WHERE `student`.`id`={id}")
+    #db.engine.execute(f"DELETE FROM `student` WHERE `student`.`id`={id}")
     flash("Slot Deleted Successful","danger")
     return redirect('/studentdetails')
 
@@ -157,7 +166,7 @@ def delete(id):
 @app.route("/edit/<string:id>",methods=['POST','GET'])
 @login_required
 def edit(id):
-    # dept=db.engine.execute("SELECT * FROM `department`")    
+    #dept=db.engine.execute("SELECT * FROM `department`")    
     if request.method=="POST":
         rollno=request.form.get('rollno')
         sname=request.form.get('sname')
@@ -167,7 +176,7 @@ def edit(id):
         email=request.form.get('email')
         num=request.form.get('num')
         address=request.form.get('address')
-        # query=db.engine.execute(f"UPDATE `student` SET `rollno`='{rollno}',`sname`='{sname}',`sem`='{sem}',`gender`='{gender}',`branch`='{branch}',`email`='{email}',`number`='{num}',`address`='{address}'")
+        #query=db.engine.execute(f"UPDATE `student` SET `rollno`='{rollno}',`sname`='{sname}',`sem`='{sem}',`gender`='{gender}',`branch`='{branch}',`email`='{email}',`number`='{num}',`address`='{address}'")
         post=Student.query.filter_by(id=id).first()
         post.rollno=rollno
         post.sname=sname
@@ -197,9 +206,9 @@ def signup():
             return render_template('/signup.html')
         encpassword=generate_password_hash(password)
 
-        # new_user=db.engine.execute(f"INSERT INTO `user` (`username`,`email`,`password`) VALUES ('{username}','{email}','{encpassword}')")
+        new_user=db.engine.execute(f"INSERT INTO `user` (`username`,`email`,`password`) VALUES ('{username}','{email}','{encpassword}')")
 
-        # this is method 2 to save data in db
+        #this is method 2 to save data in db
         newuser=User(username=username,email=email,password=encpassword)
         db.session.add(newuser)
         db.session.commit()
@@ -239,7 +248,7 @@ def logout():
 @app.route('/addstudent',methods=['POST','GET'])
 @login_required
 def addstudent():
-    # dept=db.engine.execute("SELECT * FROM `department`")
+    dept=db.engine.execute("SELECT * FROM `department`")
     dept=Department.query.all()
     if request.method=="POST":
         rollno=request.form.get('rollno')
