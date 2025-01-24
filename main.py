@@ -23,7 +23,7 @@ def load_user(user_id):
 
 
 # app.config['SQLALCHEMY_DATABASE_URL']='mysql://username:password@localhost/databas_table_name'
-app.config['SQLALCHEMY_DATABASE_URI']='mysql://root:@localhost/studentdbms'
+app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///site.db'
 db=SQLAlchemy(app)
 
 # here we will create db models that is tables
@@ -97,7 +97,7 @@ def department():
         dep=Department(branch=dept)
         db.session.add(dep)
         db.session.commit()
-        flash("Department Addes","success")
+        flash("Department Address","success")
     return render_template('department.html')
 
 @app.route('/addattendance',methods=['POST','GET'])
@@ -109,7 +109,7 @@ def addattendance():
         attend=request.form.get('attend')
         print(attend,rollno)
         atte=Attendence(rollno=rollno,attendance=attend)
-        db.session.add(atte)
+        db.session.add(attendance)
         db.session.commit()
         flash("Attendance added","warning")
 
