@@ -27,6 +27,8 @@ def load_user(user_id):
 # app.config['SQLALCHEMY_DATABASE_URL']='mysql://username:password@localhost/databas_table_name'
 app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///site.db'
 db=SQLAlchemy(app)
+# Settings for migrations
+migrate = Migrate(app, db)
 
 # here we will create db models that is tables
 class Test(db.Model):
@@ -70,9 +72,6 @@ class Student(db.Model):
     email=db.Column(db.String(50))
     number=db.Column(db.String(12))
     address=db.Column(db.String(100))
-
-# Settings for migrations
-migrate = Migrate(app, db)
 
 @app.route('/')
 def home(): 
