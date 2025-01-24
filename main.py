@@ -1,4 +1,6 @@
 from flask import Flask,render_template,request,session,redirect,url_for,flash
+# Import for Migrations
+from flask_migrate import Migrate, migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash,check_password_hash
@@ -68,7 +70,9 @@ class Student(db.Model):
     email=db.Column(db.String(50))
     number=db.Column(db.String(12))
     address=db.Column(db.String(100))
-    
+
+# Settings for migrations
+migrate = Migrate(app, db)
 
 @app.route('/')
 def home(): 
