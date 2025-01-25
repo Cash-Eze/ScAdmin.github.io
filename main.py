@@ -1,6 +1,9 @@
 from flask import Flask,render_template,request,session,redirect,url_for,flash
+# Import for Migrations
+from flask_migrate import Migrate, migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
+import sqlalchemy
 from werkzeug.security import generate_password_hash,check_password_hash
 from flask_login import login_user,logout_user,login_manager,LoginManager
 from flask_login import login_required,current_user
@@ -23,25 +26,34 @@ def load_user(user_id):
 
 
 # app.config['SQLALCHEMY_DATABASE_URL']='mysql://username:password@localhost/databas_table_name'
-app.config['SQLALCHEMY_DATABASE_URI']='mysql://root:@localhost/studentdbms'
+app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///site.db'
+engine = sqlalchemy.create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+
 db=SQLAlchemy(app)
+# Settings for migrations
+migrate = Migrate(app, db)
+
 
 # here we will create db models that is tables
 class Test(db.Model):
+    __tablename__ = "Test"
     id=db.Column(db.Integer,primary_key=True)
     name=db.Column(db.String(100))
     email=db.Column(db.String(100))
 
 class Department(db.Model):
+    __tablename__ = "Department"
     cid=db.Column(db.Integer,primary_key=True)
     branch=db.Column(db.String(100))
 
 class Attendence(db.Model):
+    __tablename__ = "Attendance"
     aid=db.Column(db.Integer,primary_key=True)
     rollno=db.Column(db.String(100))
     attendance=db.Column(db.Integer())
 
 class Trig(db.Model):
+    __tablename__ = "Trig"
     tid=db.Column(db.Integer,primary_key=True)
     rollno=db.Column(db.String(100))
     action=db.Column(db.String(100))
@@ -49,6 +61,7 @@ class Trig(db.Model):
 
 
 class User(UserMixin,db.Model):
+    __tablename__ = "User"
     id=db.Column(db.Integer,primary_key=True)
     username=db.Column(db.String(50))
     email=db.Column(db.String(50),unique=True)
@@ -59,6 +72,7 @@ class User(UserMixin,db.Model):
 
 
 class Student(db.Model):
+    __tablename__ = "Students"
     id=db.Column(db.Integer,primary_key=True)
     rollno=db.Column(db.String(50))
     sname=db.Column(db.String(50))
@@ -68,7 +82,6 @@ class Student(db.Model):
     email=db.Column(db.String(50))
     number=db.Column(db.String(12))
     address=db.Column(db.String(100))
-    
 
 @app.route('/')
 def home(): 
@@ -97,7 +110,7 @@ def department():
         dep=Department(branch=dept)
         db.session.add(dep)
         db.session.commit()
-        flash("Department Addes","success")
+        flash("Department Address","success")
     return render_template('department.html')
 
 @app.route('/addattendance',methods=['POST','GET'])
@@ -251,4 +264,4 @@ def test():
         return 'My db is not Connected'
 
 
-app.run(debug=True)    
+app.run(debug=True)
