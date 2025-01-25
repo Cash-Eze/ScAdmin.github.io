@@ -1,6 +1,6 @@
 from flask import Flask,render_template,request,session,redirect,url_for,flash
 # Import for Migrations
-from flask_migrate import Migrate, migrate
+#from flask_migrate import Migrate, migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash,check_password_hash
@@ -28,7 +28,7 @@ def load_user(user_id):
 app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///site.db'
 db=SQLAlchemy(app)
 # Settings for migrations
-migrate = Migrate(app, db)
+#migrate = Migrate(app, db)
 
 # here we will create db models that is tables
 class Test(db.Model):
